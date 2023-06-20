@@ -13,6 +13,13 @@ def get_rating(soup):
     except:
         rating = ""
     return rating
+def get_title(soup):
+    try:
+        title = review.find("a", attrs={"data-hook":'review-title'}).find_all('span')[-1].text
+    except:
+        title = ""
+    return title
+
 
 if __name__ == '__main__':
     # Get your own user agent at:
@@ -28,11 +35,11 @@ if __name__ == '__main__':
     review = soup.find("div", attrs={"class":'a-section review aok-relative'})
     username = get_username(soup=review)
     rating = get_rating(soup=review)
+    title = get_title(soup=review)
     
-    title = review.find("a", attrs={"data-hook":'review-title'}).find_all('span')[-1].text
-
     print(f'Username: {username}')
     print(f'Rating: {rating}')
+    print(f'Title: {title}')
 
 
 
