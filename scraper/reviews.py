@@ -7,6 +7,12 @@ def get_username(soup):
     except:
         username = ""
     return username
+def get_rating(soup):
+    try:
+        rating = review.find("i", attrs={"data-hook":'review-star-rating'}).span.text.split()[0]
+    except:
+        rating = ""
+    return rating
 
 if __name__ == '__main__':
     # Get your own user agent at:
@@ -20,11 +26,13 @@ if __name__ == '__main__':
     html_text = requests.get(url, headers=headers).text
     soup = BeautifulSoup(html_text, 'lxml')
     review = soup.find("div", attrs={"class":'a-section review aok-relative'})
-    rating = review.find("i", attrs={"data-hook":'review-star-rating'}).span.text.split()[0]
+    username = get_username(soup=review)
+    rating = get_rating(soup=review)
+    
     title = review.find("a", attrs={"data-hook":'review-title'}).find_all('span')[-1].text
-    print(username)
-    print(rating)
-    print(title)
+
+    print(f'Username: {username}')
+    print(f'Rating: {rating}')
 
 
 
