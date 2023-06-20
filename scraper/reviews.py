@@ -19,11 +19,6 @@ headers = {
     "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
 }
 
-URLS = [
-    "https://www.amazon.in/dp/product-reviews/B07MD1G8RZ?pageNumber=2"
-]
-
-
 def get_page_html(page_url: str) -> str:
     resp = requests.get(page_url, headers=headers)
     return resp.text
