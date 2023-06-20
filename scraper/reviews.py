@@ -46,6 +46,13 @@ def get_verified(soup):
         return True
     else:
         return False
+def get_review_body(soup):
+    try:
+        review_body = soup.find("span", attrs={"data-hook":'review-body'}).span.text
+    except:
+        review_body = ""
+    return review_body
+
         
 
 
@@ -63,6 +70,7 @@ if __name__ == '__main__':
 
     html_text = requests.get(url, headers=headers).text
     soup = BeautifulSoup(html_text, 'lxml')
+    
     review = soup.find("div", attrs={"class":'a-section review aok-relative'})
     username = get_username(soup=review)
     rating = get_rating(soup=review)
@@ -70,7 +78,9 @@ if __name__ == '__main__':
     country, date = get_country_and_date(soup=review)
     product_variant = get_product_variant(soup=review)
     is_verified = get_verified(soup=review)
-
+    review_body = get_review_body(soup=review)
+    
+    
     print(f'Username: {username}')
     print(f'Rating: {rating}')
     print(f'Title: {title}')
@@ -78,6 +88,7 @@ if __name__ == '__main__':
     print(f'Date: {date}')
     print(f'Product Variant: {product_variant}')
     print(f'Is Verified: {is_verified}')
+    print(f'Review: {review_body}')
 
 
 
