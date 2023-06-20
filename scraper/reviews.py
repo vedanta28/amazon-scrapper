@@ -1,24 +1,38 @@
 from bs4 import BeautifulSoup
 import requests
+import re
+from datetime import datetime
 
 def get_username(soup):
     try:
-        username = review.find("span", attrs={"class":'a-profile-name'}).text
+        username = soup.find("span", attrs={"class":'a-profile-name'}).text
     except:
         username = ""
     return username
 def get_rating(soup):
     try:
-        rating = review.find("i", attrs={"data-hook":'review-star-rating'}).span.text.split()[0]
+        rating = soup.find("i", attrs={"data-hook":'review-star-rating'}).span.text.split()[0]
     except:
         rating = ""
     return rating
 def get_title(soup):
     try:
-        title = review.find("a", attrs={"data-hook":'review-title'}).find_all('span')[-1].text
+        title = soup.find("a", attrs={"data-hook":'review-title'}).find_all('span')[-1].text
     except:
         title = ""
     return title
+def get_country_and_date(soup):
+    try:
+        string = soup.find("span", attrs={"data-hook":'review-date'}).text
+        country = re.search(r'Reviewed in (.+?) on', string).group(1)
+        date_match = re.search(r'on (\d+ \w+ \d+)', string).group(1)
+        date = datetime.strptime(date_match, "%d %B %Y").strftime("%d/%m/%Y")
+    except:
+        country = ""
+        date = ""
+    return country, date
+
+
 
 
 if __name__ == '__main__':
@@ -36,10 +50,13 @@ if __name__ == '__main__':
     username = get_username(soup=review)
     rating = get_rating(soup=review)
     title = get_title(soup=review)
-    
+    country, date = get_country_and_date(soup=review)
+
     print(f'Username: {username}')
     print(f'Rating: {rating}')
     print(f'Title: {title}')
+    print(f'Country: {country}')
+    print(f'Date: {date}')
 
 
 
