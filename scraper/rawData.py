@@ -43,7 +43,7 @@ if __name__ == '__main__':
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
     headers = {'User-Agent': user_agent, 'Accept-Language': 'en-US, en;q=0.5'}
 
-    url = 'https://www.amazon.in/WONDERLAND-FOODS-DEVICE-Raisins-Kishmish/dp/B08VGDWJRM?ref_=Oct_DLandingS_D_07408eea_0&th=1'
+    url = 'https://www.amazon.in/Google-Pixel-Watch-Smartwatch-Stainless/dp/B0BGX1CSRY/?_encoding=UTF8&pd_rd_w=LBGmG&content-id=amzn1.sym.22a42d01-0089-4fec-a28b-ec7a361d085f&pf_rd_p=22a42d01-0089-4fec-a28b-ec7a361d085f&pf_rd_r=SW9VRSHH498801RDM1D6&pd_rd_wg=s4ruc&pd_rd_r=2e473a06-c62f-4a99-a028-831e575b28bb&ref_=pd_gw_ci_mcx_mr_hp_d'
 
     html_text = requests.get(url, headers=headers).text
     soup = BeautifulSoup(html_text, 'lxml')
