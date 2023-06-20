@@ -37,6 +37,16 @@ def get_product_variant(soup):
     except:
         product_variant = ""
     return product_variant
+def get_verified(soup):
+    try:
+        is_verified = soup.find("span", attrs={"data-hook":'avp-badge'}).text
+    except:
+        is_verified = ""
+    if is_verified == "Verified Purchase":
+        return True
+    else:
+        return False
+        
 
 
 
@@ -59,6 +69,7 @@ if __name__ == '__main__':
     title = get_title(soup=review)
     country, date = get_country_and_date(soup=review)
     product_variant = get_product_variant(soup=review)
+    is_verified = get_verified(soup=review)
 
     print(f'Username: {username}')
     print(f'Rating: {rating}')
@@ -66,6 +77,7 @@ if __name__ == '__main__':
     print(f'Country: {country}')
     print(f'Date: {date}')
     print(f'Product Variant: {product_variant}')
+    print(f'Is Verified: {is_verified}')
 
 
 
