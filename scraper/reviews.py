@@ -31,6 +31,13 @@ def get_country_and_date(soup):
         country = ""
         date = ""
     return country, date
+def get_product_variant(soup):
+    try:
+        product_variant = soup.find("a", attrs={"data-hook":'format-strip'}).text
+    except:
+        product_variant = ""
+    return product_variant
+
 
 
 
@@ -51,12 +58,14 @@ if __name__ == '__main__':
     rating = get_rating(soup=review)
     title = get_title(soup=review)
     country, date = get_country_and_date(soup=review)
+    product_variant = get_product_variant(soup=review)
 
     print(f'Username: {username}')
     print(f'Rating: {rating}')
     print(f'Title: {title}')
     print(f'Country: {country}')
     print(f'Date: {date}')
+    print(f'Product Variant: {product_variant}')
 
 
 
