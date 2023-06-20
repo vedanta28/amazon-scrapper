@@ -52,6 +52,15 @@ def get_review_body(soup):
     except:
         review_body = ""
     return review_body
+def get_found_helpful(soup):
+    try:
+        found_helpful = soup.find("span", attrs={"data-hook":'helpful-vote-statement'}).text.split()[0]
+    except:
+        found_helpful = ""
+    return found_helpful
+
+
+
 
         
 
@@ -70,7 +79,7 @@ if __name__ == '__main__':
 
     html_text = requests.get(url, headers=headers).text
     soup = BeautifulSoup(html_text, 'lxml')
-    
+
     review = soup.find("div", attrs={"class":'a-section review aok-relative'})
     username = get_username(soup=review)
     rating = get_rating(soup=review)
@@ -79,6 +88,7 @@ if __name__ == '__main__':
     product_variant = get_product_variant(soup=review)
     is_verified = get_verified(soup=review)
     review_body = get_review_body(soup=review)
+    found_helpful = get_found_helpful(soup=review)
     
     
     print(f'Username: {username}')
@@ -89,6 +99,7 @@ if __name__ == '__main__':
     print(f'Product Variant: {product_variant}')
     print(f'Is Verified: {is_verified}')
     print(f'Review: {review_body}')
+    print(f'Found Helpful: {found_helpful}')
 
 
 
