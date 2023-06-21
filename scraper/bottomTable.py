@@ -5,6 +5,16 @@ import json
 
 import unicodedata
 
+from string import punctuation
+
+def convert_to_lowercase_with_underscore(string):
+    translator = str.maketrans("", "", punctuation)  # Create a translator to remove punctuation
+    string = string.translate(translator)  # Remove punctuation marks
+    words = string.split()  # Split the string into individual words
+    lowercase_words = [word.lower() for word in words]  # Convert each word to lowercase
+    result = '_'.join(lowercase_words)  # Join the lowercase words with underscores
+    return result
+
 def remove_unrendered_unicode(text):
     cleaned_text = ""
     for char in text:
@@ -12,44 +22,84 @@ def remove_unrendered_unicode(text):
             cleaned_text += char
     return cleaned_text
 
+
+headers = {
+    "authority": "www.amazon.com",
+    "pragma": "no-cache",
+    "cache-control": "no-cache",
+    "dnt": "1",
+    "upgrade-insecure-requests": "1",
+    "user-agent": "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36",
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    "sec-fetch-site": "none",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-dest": "document",
+    "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+}
+
 def getdata(url):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    }
-
     response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.content, "html.parser")
+    soup = BeautifulSoup(response.text,  "lxml")
 
-    # Technical details
-    tech_spec_section = soup.select("#productDetails_techSpec_section_1")
-    fields = tech_spec_section[0].select(".a-color-secondary.a-size-base.prodDetSectionEntry")
-    values = tech_spec_section[0].select(".a-size-base.prodDetAttrValue")
-    fields = [field.get_text(strip=True) for field in fields]
-    values = [value.get_text(strip=True) for value in values]
+    fields = []
+    values = []
+    try:
+        # Technical details
+        tech_spec_section = soup.select(".a-keyvalue.prodDetTable")
+        # print(tech_spec_section)
+        fields = tech_spec_section[0].select("th",{"class":"a-color-secondary a-size-base prodDetSectionEntry"})
+        values = tech_spec_section[0].select("td",{"class":"a-size-base.prodDetAttrValue"})
+        fields = [field.get_text(strip=True) for field in fields]
+        values = [value.get_text(strip=True) for value in values]
+    except:
+        pass    
 
-    # Additional details
-    detail_bullets_section = soup.select("#productDetails_detailBullets_sections1")
-    rows = detail_bullets_section[0].select("tr")
-    for row in rows:
-        if row.find("th").get_text(strip=True) == "Customer Reviews":
-            fields.append("Rating")
-            values.append(row.find("td").select_one(".a-size-base.a-color-base").get_text(strip=True))
-            fields.append("Number of Reviews")
-            values.append(row.find("td").select_one("#acrCustomerReviewText").get_text(strip=True).split(" ")[0])
-            continue
-        if row.find("th").get_text(strip=True) == "Best Sellers Rank":
+    try:
+        # Additional details
+        detail_bullets_section = soup.select("#productDetails_detailBullets_sections1")
+        rows = detail_bullets_section[0].select("tr")
+        for row in rows:
+            if row.find("th").get_text(strip=True) == "Customer Reviews":
+                fields.append("Rating")
+                values.append(row.find("td").select_one(".a-size-base.a-color-base").get_text(strip=True))
+                fields.append("Ratings")
+                values.append(row.find("td").select_one("#acrCustomerReviewText").get_text(strip=True).split(" ")[0])
+                continue
+            if row.find("th").get_text(strip=True) == "Best Sellers Rank":
+                fields.append("Ranking")
+                text = row.find("td").get_text(strip=True)
+                text = re.sub(r'\([^()]*\)', '', text).replace('\n', ', ')
+                values.append(text)
+                continue
             fields.append(row.find("th").get_text(strip=True))
-            text = row.find("td").get_text(strip=True)
-            text = re.sub(r'\([^()]*\)', '', text).replace('\n', ', ')
-            values.append(text)
-            continue
-        fields.append(row.find("th").get_text(strip=True))
-        values.append(row.find("td").get_text(strip=True))
+            values.append(row.find("td").get_text(strip=True))
+    except:
+        pass
+
+    try:
+        ul_section = soup.select(".a-unordered-list.a-nostyle.a-vertical.a-spacing-none.detail-bullet-list")
+        # since this might have some newlines and : and spaces in the text, we need to clean it
+        for li in ul_section[0].select("li"):
+            fields.append(li.get_text(strip=True).replace('\n','').split(":")[0].strip())
+            values.append(li.get_text(strip=True).replace('\n','').split(":")[1].strip())
+        fields.append(ul_section[1].get_text(strip=True).split(":")[0].strip())
+        values.append(ul_section[1].get_text(strip=True).split(":")[1].strip())
+
+        fields.append("Rating")
+        rating=ul_section[2].get_text(strip=True).split(":")[1]
+        extracted_pattern = re.findall(r"\d\.\d", rating)[0] if re.findall(r"\d\.\d", rating) else None
+        values.append(extracted_pattern)
+
+        fields.append("Ratings")
+        values.append(rating.split("stars")[1].split(" ")[0])
+    except:
+        pass
+
 
     n = len(fields)
     res = {}
     for i in range(n):
-        fields[i] = remove_unrendered_unicode(fields[i])
+        fields[i] = convert_to_lowercase_with_underscore(remove_unrendered_unicode(fields[i]))
         values[i] = remove_unrendered_unicode(values[i])
         res[fields[i]] = values[i]
 
@@ -60,7 +110,9 @@ def getdata(url):
 if __name__=="__main__":
     url="https://www.amazon.in/HP-Multi-Device-Bluetooth-Resistant-Auto-Detection/dp/B0BR3YKQQ1/ref=sr_1_2_sspa?keywords=keyboards&qid=1687188204&sr=8-2-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1"
     url2="https://www.amazon.in/Kurkure-Namkeen-Masala-Munch-95g/dp/B004IF24XE/ref=sr_1_1?keywords=kurkure&qid=1687195614&sr=8-1"
-    JSON=json.dumps(getdata(url),indent=4)
+    url3="https://www.amazon.in/MASERATI-Stile-42-Mens-Watch/dp/B08X15J8MT?ref_=Oct_DLandingS_D_3994573e_10"
+    url4="https://www.amazon.in/dp/B07YT1GKKH/ref=va_live_carousel?pf_rd_r=4P99QCREQ27DT52EWCPY&pf_rd_p=76ec0da0-3e09-4230-87db-2d8c9ab9db44&pf_rd_m=A21TJRUUN4KGV&pf_rd_t=Gateway&pf_rd_i=desktop&pf_rd_s=desktop-6&pd_rd_i=B07YT1GKKH&th=1&psc=1"
+    JSON=json.dumps(getdata(url3),indent=4)
     print(JSON)
 
 
