@@ -8,34 +8,47 @@ def getDetails(centralCol, rightCol) -> dict:
         title = centralCol.find("span", attrs={"id":'productTitle'}).text.strip()
     except AttributeError:
         title = ""
+
     try:
         savings = centralCol.find("span", attrs={"class":'savingsPercentage'}).text.strip().split("-")[1]
     except AttributeError:
         savings = "0%"
+    
     try:
-        sellingPrice = centralCol.find("span", attrs={"class":'priceToPay'}).find("span", attrs={"class": "a-offscreen"}).text.strip().split("₹")[1]
+        sellingPrice = centralCol.find("span", attrs={"class":'priceToPay'}).find("span", attrs={"class": "a-offscreen"}).text.strip().split("₹")[1].replace(',', '')
     except AttributeError:
         sellingPrice = ""
+    
     try:
-        MRP = centralCol.find("span", attrs={"data-a-strike":'true'}).find("span", attrs={"class": "a-offscreen"}).text.strip().split("₹")[1]
+        MRP = centralCol.find("span", attrs={"data-a-strike":'true'}).find("span", attrs={"class": "a-offscreen"}).text.strip().split("₹")[1].replace(',', '')
     except AttributeError:
         MRP = ""
+    
     try:
-        dotd_price = (centralCol.find("span", attrs={"class":'dealBadge'}).text.strip() == "Deal of the Day")  
+        deal_type = centralCol.find("span", attrs={"class":'dealBadge'}).text.strip()
+        isDOTD = (deal_type == "Deal of the Day")
+        isDeal = (deal_type == "Deal" or deal_type == "Limited time deal")  
+        isLD = (deal_type == "Lightning Deal")  
     except:
-        dotd_price = False
+        isDOTD = False
+        isDeal = False
+        isLD = False
+    
     try:
         ratingsCount = centralCol.find("span", attrs={"id":'acrCustomerReviewText'}).text.strip().split(" ")[0]
     except AttributeError:
         ratingsCount = ""
+    
     try:
         ratings = centralCol.find("span", attrs={"id":'acrPopover'}).text.strip().split(" ")[0]
     except AttributeError:
         ratings = ""
+    
     try:
         soldBy = rightCol.find("div", attrs={"id":'merchant-info'}).text.strip().split("and")[0].split(" ")[2]
     except AttributeError:
         soldBy = ""
+    
     try:
         availability = rightCol.find("div", attrs={"id":'availability'}).text.strip()
     except AttributeError:
@@ -46,7 +59,9 @@ def getDetails(centralCol, rightCol) -> dict:
         "savings": savings,
         "sellingPrice": sellingPrice,
         "MRP": MRP,
-        "dotd_price": dotd_price,
+        "isDOTD": isDOTD,
+        "isDeal": isDeal,
+        "isLD": isLD,
         "ratingsCount": ratingsCount,
         "ratings": ratings,
         "availability": availability,
