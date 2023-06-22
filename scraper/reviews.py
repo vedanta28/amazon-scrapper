@@ -145,14 +145,19 @@ class AmazonReviewScraper:
                 break
 
         save_name = f"{asin}_{datetime.now().strftime('%Y-%m-%d-%m')}_reviews.csv"
-        with open(save_name, 'w', newline='', encoding='utf-8') as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=all_results[0].keys())
-            writer.writeheader()
-            writer.writerows(all_results)
 
-        logging.info(f"{len(all_results)} is the length of the list")
-        logging.info(f"Saved to {save_name}")
-        logging.info('Done yayy')
+        if all_results:
+            with open(save_name, 'w', newline='', encoding='utf-8') as csv_file:
+                writer = csv.DictWriter(csv_file, fieldnames=all_results[0].keys())
+                writer.writeheader()
+                writer.writerows(all_results)
+
+            logging.info(f"{len(all_results)} is the length of the list")
+            logging.info(f"Saved to {save_name}")
+        else:
+            logging.warning("No results found. Nothing to save.")
+
+logging.info('Done yayy')
 
 
 if __name__ == '__main__':
