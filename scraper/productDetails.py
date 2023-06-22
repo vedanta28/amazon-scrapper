@@ -15,9 +15,9 @@ def getDetails(centralCol, rightCol) -> dict:
         savings = "0%"
     
     try:
-        sellingPrice = centralCol.find("span", attrs={"class":'priceToPay'}).find("span", attrs={"class": "a-offscreen"}).text.strip().split("₹")[1].replace(',', '')
+        selling_price = centralCol.find("span", attrs={"class":'priceToPay'}).find("span", attrs={"class": "a-offscreen"}).text.strip().split("₹")[1].replace(',', '')
     except AttributeError:
-        sellingPrice = ""
+        selling_price = ""
     
     try:
         MRP = centralCol.find("span", attrs={"data-a-strike":'true'}).find("span", attrs={"class": "a-offscreen"}).text.strip().split("₹")[1].replace(',', '')
@@ -28,16 +28,14 @@ def getDetails(centralCol, rightCol) -> dict:
         deal_type = centralCol.find("span", attrs={"class":'dealBadge'}).text.strip()
         isDOTD = (deal_type == "Deal of the Day")
         isDeal = (deal_type == "Deal" or deal_type == "Limited time deal")  
-        isLD = (deal_type == "Lightning Deal")  
     except:
         isDOTD = False
         isDeal = False
-        isLD = False
     
     try:
-        ratingsCount = centralCol.find("span", attrs={"id":'acrCustomerReviewText'}).text.strip().split(" ")[0]
+        ratings_count = centralCol.find("span", attrs={"id":'acrCustomerReviewText'}).text.strip().split(" ")[0]
     except AttributeError:
-        ratingsCount = ""
+        ratings_count = ""
     
     try:
         ratings = centralCol.find("span", attrs={"id":'acrPopover'}).text.strip().split(" ")[0]
@@ -45,27 +43,78 @@ def getDetails(centralCol, rightCol) -> dict:
         ratings = ""
     
     try:
-        soldBy = rightCol.find("div", attrs={"id":'merchant-info'}).text.strip().split("and")[0].split(" ")[2]
+        merchantInfo = rightCol.find("div", attrs={"id":'merchant-info'}).text.strip()
+        
+        if 'Sold and fulfilled by ' in merchantInfo:
+            sold_by = merchantInfo.split("Sold and fulfilled by ")[1]
+
+        elif 'Sold and delivered by ' in merchantInfo:
+            sold_by = merchantInfo.split("Sold and delivered by ")[1]
+
+        elif 'Sold and Fulfilled by ' in merchantInfo:
+            sold_by = merchantInfo.split("Sold and Fulfilled by ")[1]
+
+        elif 'Sold and Delivered by ' in merchantInfo:
+            sold_by = merchantInfo.split("Sold and Delivered by ")[1]
+
+        elif 'Sold by' in merchantInfo:
+            if ' and Fulfilled by ' in merchantInfo:
+                sold_by = merchantInfo.split(" and Fulfilled by ")[0].split("Sold by ")[1]
+            elif ' and Delivered by ' in merchantInfo:
+                sold_by = merchantInfo.split(" and Delivered by ")[0].split("Sold by ")[1]
+            else:
+                sold_by = merchantInfo.split(" and ")[0].split("Sold by ")[1]
+
+        else:
+            sold_by = merchantInfo.split(" and ")[0].split("Sold by ")[1]
+            
+
+        delivery_type = "MFN"
+        if 'Fulfilled by Amazon' in merchantInfo:
+            delivery_type = "FBA"
+
     except AttributeError:
-        soldBy = ""
-    
+        sold_by = ""
+        delivery_type = ""
+        
+    try:
+        shipping_fees = "0"
+        shipment = rightCol.find("div", attrs={"id": 'deliveryBlockMessage'}).text.strip()
+        if 'FREE' in shipment:
+            shipping_fees = "0"
+        else:
+            shipping_fees = shipment.split(" delivery")[0][1:]
+    except AttributeError:
+        shipping_fees = ""
+
     try:
         availability = rightCol.find("div", attrs={"id":'availability'}).text.strip()
     except AttributeError:
-        availability = ""
+        if rightCol.text.count("Currently unavailable"):
+            availability = "Currently unavailable"
+        elif rightCol.text.count("Temporarily unavailable"):
+            availability = "Temporarily unavailable"
+        else:
+            availability = ""
+    
+    isLD = False
+    if(rightCol.text.count("lightning") or rightCol.text.count("Lightning")):
+        isLD = True
 
     ProductDetails = {
         "title": title,
         "savings": savings,
-        "sellingPrice": sellingPrice,
+        "selling_price": selling_price,
         "MRP": MRP,
         "isDOTD": isDOTD,
         "isDeal": isDeal,
-        "isLD": isLD,
-        "ratingsCount": ratingsCount,
+        "isLD" : isLD,
+        "ratings_count": ratings_count,
         "ratings": ratings,
         "availability": availability,
-        "soldBy": soldBy
+        "sold_by": sold_by,
+        "delivery_type": delivery_type,
+        "shipping_fees": shipping_fees
     }
 
     return ProductDetails
