@@ -1,4 +1,5 @@
 from bottomTable import getdata
+from reviews import AmazonReviewScraper
 from pymongo import MongoClient
 import os
 import time
@@ -38,7 +39,7 @@ def dbConnector():
 
 app = Flask(__name__)
 CORS(app, origins="*") # Allow CORS requests from any origin
-url_list = []
+url_list = ["https://www.amazon.in/Harissons-Sirius-Laptop-Backpacks-Built/dp/B07MD1G8RZ/ref=cm_cr_arp_d_product_top?ie=UTF8"]
 def assign_fields(dictionary1, dictionary2):
     result = dictionary1.copy()
 
@@ -84,6 +85,8 @@ def process_urls():
                 data = getdata(url)
                 print(data)
                 dict1 = assign_fields(master_dict, data)
+                asin = dict1.get("asin", "")
+                AmazonReviewScraper().scrape_reviews(asin, 100)
                 print(dict1)
                 writer.writerow(dict1)
 
