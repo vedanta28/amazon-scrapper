@@ -64,7 +64,7 @@ def process_urls():
 
                 response = requests.get(url, headers=headers)
                 soup = BeautifulSoup(response.text,  "lxml")
-                data0 = AmazonProductDetailsScraper(soup)
+                data0 = AmazonProductDetailsScraper(soup).scrape_product_details()
                 dict0 = assign_fields(master_dict, data0)
                 
                 dict1 = assign_fields(dict0, data)
