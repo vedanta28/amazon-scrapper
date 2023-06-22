@@ -1,5 +1,5 @@
 import requests
-import json
+import csv
 from bs4 import BeautifulSoup
 from datetime import datetime
 import logging
@@ -31,44 +31,67 @@ class AmazonReviewScraper:
         return reviews
 
     def get_review_date(self, soup_object: BeautifulSoup):
-        date_string = soup_object.find("span", {"class": "review-date"}).get_text()
-        date_match = re.search(r'on (\d+ \w+ \d+)', date_string).group(1)
-        date = datetime.strptime(date_match, "%d %B %Y").strftime("%d/%m/%Y")
+        try:
+            date_string = soup_object.find("span", {"class": "review-date"}).get_text()
+            date_match = re.search(r'on (\d+ \w+ \d+)', date_string).group(1)
+            date = datetime.strptime(date_match, "%d %B %Y").strftime("%d/%m/%Y")
+        except:
+            date = ""
         return date
 
     def get_review_country(self, soup_object: BeautifulSoup):
-        country = re.search(r'Reviewed in (.+?) on', soup_object.find("span", {"class": "review-date"}).get_text()).group(1)
-        return country.split()[0]
+        try:
+            country = re.search(r'Reviewed in (.+?) on', soup_object.find("span", {"class": "review-date"}).get_text()).group(1).split()[0]
+        except:
+            country = ""
+        return country
 
     def get_review_username(self, soup_object: BeautifulSoup) -> str:
-        review_text = soup_object.find(
-            "span", {"class": "a-profile-name"}
-        ).get_text()
-        return review_text.strip()
+        try:
+            review_text = soup_object.find(
+                "span", {"class": "a-profile-name"}
+            ).get_text().strip()
+        except:
+            review_text = ""
+        return review_text
 
     def get_review_text(self, soup_object: BeautifulSoup) -> str:
-        review_text = soup_object.find(
-            "span", {"class": "a-size-base review-text review-text-content"}
-        ).get_text()
-        return review_text.strip()
+        try:
+            review_text = soup_object.find(
+                "span", {"class": "a-size-base review-text review-text-content"}
+            ).get_text().strip()
+        except:
+            review_text = ""
+        return review_text
 
     def get_review_header(self, soup_object: BeautifulSoup) -> str:
-        review_header = soup_object.find(
-            "a",
-            {
-                "class": "a-size-base a-link-normal review-title a-color-base review-title-content a-text-bold"
-            },
-        ).find_all('span')[-1].get_text()
-        return review_header.strip()
+        try:
+            review_header = soup_object.find(
+                "a",
+                {
+                    "class": "a-size-base a-link-normal review-title a-color-base review-title-content a-text-bold"
+                },
+            ).find_all('span')[-1].get_text().strip()
+        except:
+            review_header = ""
+        return review_header
 
     def get_number_stars(self, soup_object: BeautifulSoup) -> str:
-        stars = soup_object.find("span", {"class": "a-icon-alt"}).get_text().split()[0]
-        return stars.strip()
+        try:
+            stars = soup_object.find(
+                "span", {"class": "a-icon-alt"}
+            ).get_text().split()[0].strip()
+        except:
+            stars = ""
+        return stars
 
     def get_product_variant(self, soup_object: BeautifulSoup) -> str:
-        product = soup_object.find(
-            "a", {"class": "a-size-mini a-link-normal a-color-secondary"}
-        ).get_text()
+        try:
+            product = soup_object.find(
+                "a", {"class": "a-size-mini a-link-normal a-color-secondary"}
+            ).get_text()
+        except:
+            product = ""
         return product.strip()
 
     def get_verified(self, soup_object: BeautifulSoup) -> bool:
@@ -121,9 +144,11 @@ class AmazonReviewScraper:
             if len(all_results) == initial_length:
                 break
 
-        save_name = f"{asin}_{datetime.now().strftime('%Y-%m-%d-%m')}.json"
-        with open(save_name, 'w') as json_file:
-            json.dump(all_results, json_file, indent=4)
+        save_name = f"{asin}_{datetime.now().strftime('%Y-%m-%d-%m')}_reviews.csv"
+        with open(save_name, 'w', newline='', encoding='utf-8') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=all_results[0].keys())
+            writer.writeheader()
+            writer.writerows(all_results)
 
         logging.info(f"{len(all_results)} is the length of the list")
         logging.info(f"Saved to {save_name}")
@@ -133,4 +158,4 @@ class AmazonReviewScraper:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     scraper = AmazonReviewScraper()
-    scraper.scrape_reviews(asin='B07MD1G8RZ', num_pages=100)
+    scraper.scrape_reviews(asin='B094DP3177', num_pages=100)
