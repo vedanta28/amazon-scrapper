@@ -15,14 +15,14 @@ def getDetails(centralCol, rightCol) -> dict:
         savings = "0%"
     
     try:
-        selling_price = centralCol.find("span", attrs={"class":'priceToPay'}).find("span", attrs={"class": "a-offscreen"}).text.strip().split("₹")[1].replace(',', '')
+        selling_price = centralCol.find("span", attrs={"class":'priceToPay'}).find("span", attrs={"class": "a-offscreen"}).text.strip().replace(',', '')[1:]
     except AttributeError:
         selling_price = ""
     
     try:
-        MRP = centralCol.find("span", attrs={"data-a-strike":'true'}).find("span", attrs={"class": "a-offscreen"}).text.strip().split("₹")[1].replace(',', '')
+        MRP = centralCol.find("span", attrs={"data-a-strike":'true'}).find("span", attrs={"class": "a-offscreen"}).text.strip().replace(',', '')[1:]
     except AttributeError:
-        MRP = ""
+        MRP = selling_price
     
     try:
         deal_type = centralCol.find("span", attrs={"class":'dealBadge'}).text.strip()
