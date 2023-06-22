@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-class Product_Details_Scraper:
+class AmazonProductDetailsScraper:
 
     def __init__(self, soup: BeautifulSoup):
         self.soup = soup
