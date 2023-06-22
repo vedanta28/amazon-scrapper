@@ -157,8 +157,7 @@ class AmazonReviewScraper:
         else:
             logging.warning("No results found. Nothing to save.")
 
-logging.info('Done yayy')
-
+        logging.info('Done yayy')
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)

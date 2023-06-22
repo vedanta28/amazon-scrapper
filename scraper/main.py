@@ -62,6 +62,7 @@ master_dict = {
     "date_first_available": "",
     "status": "",
     "is_dotd": "",
+    "is_ld": "",
     "price": "",
     "rating": "",
     "ratings": "",
@@ -69,7 +70,6 @@ master_dict = {
     "product_name": "",
     "sold_by": "",
     "ranking": "",
-
 }
 
 #periodically run the scraper for all urls in the list
