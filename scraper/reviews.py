@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import logging
 import re
+import time
+import random
 
 class AmazonReviewScraper:
     def __init__(self):
@@ -143,6 +145,7 @@ class AmazonReviewScraper:
                 all_results.append(data)
             if len(all_results) == initial_length:
                 break
+            time.sleep(random.randint(0, 1000) / 1000)
 
         save_name = f"{asin}_{datetime.now().strftime('%Y-%m-%d-%m')}_reviews.csv"
 
