@@ -170,9 +170,9 @@ if __name__ == '__main__':
     
     # url = 'https://www.amazon.in/ASGARD-Functional-Sports-Digital-Colored/dp/B09RXRR6Y1/ref=sr_1_46?crid=2VPH6RSQ6GEQH&keywords=watches&qid=1687444040&sprefix=watche%2Caps%2C245&sr=8-46'
     # url = 'https://www.amazon.in/Fastrack-Analog-Black-Dial-Watch-NK3147KM01/dp/B01GDWNV86/ref=sr_1_45?crid=2VPH6RSQ6GEQH&keywords=watches&qid=1687444040&sprefix=watche%2Caps%2C245&sr=8-45'
-    url = 'https://www.amazon.in/sspa/click?ie=UTF8&spc=MTo1NjU0NjYzMTU0OTQ5ODE3OjE2ODc0NDQwNDA6c3BfYXRmOjIwMTM2NzA3MzYwNzk4OjowOjo&url=%2FTimex-Analog-Blue-Dial-Watch-TW00ZR262E%2Fdp%2FB07H3K85H5%2Fref%3Dsr_1_1_sspa%3Fcrid%3D2VPH6RSQ6GEQH%26keywords%3Dwatches%26qid%3D1687444040%26sprefix%3Dwatche%252Caps%252C245%26sr%3D8-1-spons%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9hdGY%26psc%3D1'
+    url = 'https://www.amazon.in/helix-Digital-Black-Unisex-Watch-TW0HXW604T/dp/B0BC5R5CTN/ref=sr_1_60_sspa?crid=2VPH6RSQ6GEQH&keywords=watches&qid=1687444040&sprefix=watche%2Caps%2C245&sr=8-60-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9idGY&psc=1'
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text,  "lxml")
     data0 = AmazonProductDetailsScraper(soup).scrape_product_details()
-    with open('scraper/data.json', 'w', encoding='utf-8') as f:
+    with open('data.json', 'w', encoding='utf-8') as f:
         json.dump(data0, f, ensure_ascii=False, indent=4)

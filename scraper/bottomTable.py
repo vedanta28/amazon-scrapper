@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import json
+import logging
 
 import unicodedata
 
@@ -45,7 +46,6 @@ def getdata(soup):
     try:
         # Technical details
         tech_spec_section = soup.select(".a-keyvalue.prodDetTable")
-        print(tech_spec_section)
         fields = tech_spec_section[0].select("th",{"class":"a-color-secondary a-size-base prodDetSectionEntry"})
         values = tech_spec_section[0].select("td",{"class":"a-size-base.prodDetAttrValue"})
         fields = [field.get_text(strip=True) for field in fields]
@@ -89,15 +89,17 @@ def getdata(soup):
     except:
         pass
 
-    print(fields)
-    print(values)
     n = len(fields)
     k = len(values)
-    print(n,k)
     res = {}
     for i in range(n):
-        fields[i] = convert_to_lowercase_with_underscore(remove_unrendered_unicode(fields[i]))
-        values[i] = remove_unrendered_unicode(values[i])
+        # fields[i] = convert_to_lowercase_with_underscore(remove_unrendered_unicode(fields[i]))
+        fields[i] = fields[i].replace("\u200f","")
+        fields[i] = fields[i].replace("\u200e","")
+        fields[i] = convert_to_lowercase_with_underscore(fields[i])
+        values[i] = values[i].replace("\u200f","")
+        values[i] = values[i].replace("\u200e","")
+        # values[i] = remove_unrendered_unicode(values[i])
         res[fields[i]] = values[i]
     
     if "best_sellers_rank" in res:
