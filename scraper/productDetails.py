@@ -120,6 +120,8 @@ class AmazonProductDetailsScraper:
     def scrape_product_details(self):
         self.centralCol = self.soup.find("div", attrs={"id":'centerCol'})
         self.rightCol = self.soup.find("div", attrs={"id":'rightCol'})
+        deal_type = self.get_deal_type(self.centralCol)
+
         isLD = False
         try:
             price = self.get_price(self.centralCol)
@@ -127,9 +129,11 @@ class AmazonProductDetailsScraper:
                 isLD = True
                 price = self.centralCol.find("span", attrs={"class":'apexPriceToPay'}).text.strip().split("₹")[1]
         except AttributeError:
+            isLD = ""
             price = ""
+            deal_type[0] = ""
+            deal_type[1] = ""
         
-        deal_type = self.get_deal_type(self.centralCol)
         merchant_info = self.get_merchant_info(self.rightCol)
 
         ProductDetails = {
