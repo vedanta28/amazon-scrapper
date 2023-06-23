@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from bottomTable import getdata
-from reviews import AmazonReviewScraper
+# from reviews import AmazonReviewScraper
 from productDetails import AmazonProductDetailsScraper
 import time
 from datetime import datetime

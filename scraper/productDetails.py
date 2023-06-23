@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 import json
 import requests
-import logging
 
 class AmazonProductDetailsScraper:
 
@@ -27,10 +26,8 @@ class AmazonProductDetailsScraper:
                     if i != 0:
                         price += " - "
                     price += p.span.text.strip()
-                # logging.warning(price)
             except AttributeError:
                 price = ""
-        logging.warning(price)
         return price
 
     def get_mrp(self, soup_object: BeautifulSoup) -> str:
@@ -49,7 +46,7 @@ class AmazonProductDetailsScraper:
 
     def get_ratings_count(self, soup_object: BeautifulSoup) -> str:
         try:
-            ratings_count = soup_object.find("span", attrs={"id":'acrCustomerReviewText'}).text.strip().split(" ")[0]
+            ratings_count = soup_object.find("span", attrs={"id":'acrCustomerReviewText'}).text.strip().split(" ")[0].replace(",","")
         except AttributeError:
             ratings_count = ""
         return ratings_count 
@@ -67,14 +64,16 @@ class AmazonProductDetailsScraper:
         return shipping_fee
     
     def get_status(self, soup_object: BeautifulSoup) -> str:
+        status = ""
         try:
             status = soup_object.find("div", attrs={"id":'availability'}).text.strip()
         except AttributeError:
-            if soup_object.text.count("Currently unavailable"):
-                status = "Currently unavailable"
-            elif soup_object.text.count("Temporarily unavailable"):
-                status = "Temporarily unavailable"
-            else:
+            try:
+                if soup_object.text.count("Currently unavailable"):
+                    status = "Currently unavailable"
+                elif soup_object.text.count("Temporarily unavailable"):
+                    status = "Temporarily unavailable"
+            except AttributeError:
                 status = ""
         return status
     
@@ -84,8 +83,8 @@ class AmazonProductDetailsScraper:
             is_dotd = (deal_type == "Deal of the Day")   
             is_deal = (deal_type == "Deal" or deal_type == "Limited time deal")
         except:
-            is_dotd = False
-            is_deal = False
+            is_dotd = ""
+            is_deal = ""
         return [is_dotd, is_deal]
     
     def get_merchant_info(self, soup_object: BeautifulSoup) -> list:
@@ -121,7 +120,6 @@ class AmazonProductDetailsScraper:
     def scrape_product_details(self):
         self.centralCol = self.soup.find("div", attrs={"id":'centerCol'})
         self.rightCol = self.soup.find("div", attrs={"id":'rightCol'})
-
         try:
             isLD = False
             price = self.get_price(self.centralCol)
@@ -129,6 +127,7 @@ class AmazonProductDetailsScraper:
                 isLD = True
                 price = self.centralCol.find("span", attrs={"class":'apexPriceToPay'}).text.strip().split("₹")[1]
         except AttributeError:
+            isLD = ""
             price = ""
         
         deal_type = self.get_deal_type(self.centralCol)
@@ -148,7 +147,6 @@ class AmazonProductDetailsScraper:
             "fba/mfn": merchant_info[1],
             "shipping_fee": self.get_shipping_fee(self.rightCol)
         }
-        logging.warning(ProductDetails)
 
         return ProductDetails
 
@@ -166,8 +164,8 @@ if __name__ == '__main__':
         "sec-fetch-dest": "document",
         "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
     }
-    url = input('Enter URL: ')
-    # url="https://www.amazon.in/HP-Multi-Device-Bluetooth-Resistant-Auto-Detection/dp/B0BR3YKQQ1/ref=sr_1_2_sspa?keywords=keyboards&qid=1687188204&sr=8-2-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1"
+    
+    url = 'https://www.amazon.in/sspa/click?ie=UTF8&spc=MTo1NjU0NjYzMTU0OTQ5ODE3OjE2ODc0NDQwNDA6c3BfYXRmOjIwMTM2NzA3MzYwNzk4OjowOjo&url=%2FTimex-Analog-Blue-Dial-Watch-TW00ZR262E%2Fdp%2FB07H3K85H5%2Fref%3Dsr_1_1_sspa%3Fcrid%3D2VPH6RSQ6GEQH%26keywords%3Dwatches%26qid%3D1687444040%26sprefix%3Dwatche%252Caps%252C245%26sr%3D8-1-spons%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9hdGY%26psc%3D1'
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text,  "lxml")
     data0 = AmazonProductDetailsScraper(soup).scrape_product_details()
