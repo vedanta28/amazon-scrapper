@@ -20,3 +20,7 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+# Py-cache
+\__pycache__
+# json-file
+*.json

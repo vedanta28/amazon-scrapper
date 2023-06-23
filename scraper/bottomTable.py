@@ -45,7 +45,7 @@ def getdata(soup):
     try:
         # Technical details
         tech_spec_section = soup.select(".a-keyvalue.prodDetTable")
-        # print(tech_spec_section)
+        print(tech_spec_section)
         fields = tech_spec_section[0].select("th",{"class":"a-color-secondary a-size-base prodDetSectionEntry"})
         values = tech_spec_section[0].select("td",{"class":"a-size-base.prodDetAttrValue"})
         fields = [field.get_text(strip=True) for field in fields]
@@ -81,21 +81,19 @@ def getdata(soup):
         for li in ul_section[0].select("li"):
             fields.append(li.get_text(strip=True).replace('\n','').split(":")[0].strip())
             values.append(li.get_text(strip=True).replace('\n','').split(":")[1].strip())
-        fields.append(ul_section[1].get_text(strip=True).split(":")[0].strip())
-        values.append(ul_section[1].get_text(strip=True).split(":")[1].strip())
+        txt=ul_section[1].get_text(strip=True).split(":")[0].strip()
+        if txt=="Best Sellers Rank":
+            fields.append(txt)
+            values.append(ul_section[1].get_text(strip=True).split(":")[1].strip())
 
-        fields.append("Rating")
-        rating=ul_section[2].get_text(strip=True).split(":")[1]
-        extracted_pattern = re.findall(r"\d\.\d", rating)[0] if re.findall(r"\d\.\d", rating) else None
-        values.append(extracted_pattern)
-
-        fields.append("Ratings")
-        values.append(rating.split("stars")[1].split(" ")[0])
     except:
         pass
 
-
+    print(fields)
+    print(values)
     n = len(fields)
+    k = len(values)
+    print(n,k)
     res = {}
     for i in range(n):
         fields[i] = convert_to_lowercase_with_underscore(remove_unrendered_unicode(fields[i]))
@@ -115,7 +113,13 @@ if __name__=="__main__":
     url2="https://www.amazon.in/Kurkure-Namkeen-Masala-Munch-95g/dp/B004IF24XE/ref=sr_1_1?keywords=kurkure&qid=1687195614&sr=8-1"
     url3="https://www.amazon.in/MASERATI-Stile-42-Mens-Watch/dp/B08X15J8MT?ref_=Oct_DLandingS_D_3994573e_10"
     url4="https://www.amazon.in/dp/B07YT1GKKH/ref=va_live_carousel?pf_rd_r=4P99QCREQ27DT52EWCPY&pf_rd_p=76ec0da0-3e09-4230-87db-2d8c9ab9db44&pf_rd_m=A21TJRUUN4KGV&pf_rd_t=Gateway&pf_rd_i=desktop&pf_rd_s=desktop-6&pd_rd_i=B07YT1GKKH&th=1&psc=1"
-    JSON=json.dumps(getdata(url3),indent=4)
+    url5="https://www.amazon.in/sspa/click?ie=UTF8&spc=MTo1NjU0NjYzMTU0OTQ5ODE3OjE2ODc0NDQwNDA6c3BfYnRmOjIwMTY1MjE2Njk4ODk4OjowOjo&url=%2Fhelix-Digital-Black-Unisex-Watch-TW0HXW604T%2Fdp%2FB0BC5R5CTN%2Fref%3Dsr_1_60_sspa%3Fcrid%3D2VPH6RSQ6GEQH%26keywords%3Dwatches%26qid%3D1687444040%26sprefix%3Dwatche%252Caps%252C245%26sr%3D8-60-spons%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9idGY%26psc%3D1"
+    response = requests.get(url5, headers=headers)
+    with open('output.html', 'w') as file:
+        file.write(response.text)
+        print('HTML content has been written to output.html')
+    soup = BeautifulSoup(response.text,  "lxml")
+    JSON=json.dumps(getdata(soup),indent=4)
     print(JSON)
 
 
