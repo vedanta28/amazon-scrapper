@@ -83,8 +83,8 @@ class AmazonProductDetailsScraper:
             is_dotd = (deal_type == "Deal of the Day")   
             is_deal = (deal_type == "Deal" or deal_type == "Limited time deal")
         except:
-            is_dotd = ""
-            is_deal = ""
+            is_dotd = False
+            is_deal = False
         return [is_dotd, is_deal]
     
     def get_merchant_info(self, soup_object: BeautifulSoup) -> list:
@@ -120,14 +120,13 @@ class AmazonProductDetailsScraper:
     def scrape_product_details(self):
         self.centralCol = self.soup.find("div", attrs={"id":'centerCol'})
         self.rightCol = self.soup.find("div", attrs={"id":'rightCol'})
+        isLD = False
         try:
-            isLD = False
             price = self.get_price(self.centralCol)
             if( self.rightCol.text.count("Lightning") and price == ""):
                 isLD = True
                 price = self.centralCol.find("span", attrs={"class":'apexPriceToPay'}).text.strip().split("₹")[1]
         except AttributeError:
-            isLD = ""
             price = ""
         
         deal_type = self.get_deal_type(self.centralCol)
