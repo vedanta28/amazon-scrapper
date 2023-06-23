@@ -27,9 +27,10 @@ class AmazonProductDetailsScraper:
                     if i != 0:
                         price += " - "
                     price += p.span.text.strip()
-                logging.warning(price)
+                # logging.warning(price)
             except AttributeError:
                 price = ""
+        logging.warning(price)
         return price
 
     def get_mrp(self, soup_object: BeautifulSoup) -> str:
@@ -126,7 +127,7 @@ class AmazonProductDetailsScraper:
             price = self.get_price(self.centralCol)
             if( self.rightCol.text.count("Lightning") ):
                 isLD = True
-                price = self.centralCol.find("span", attrs={"class":'apexPriceToPay'}).text.strip().split("₹")[1]
+                # price = self.centralCol.find("span", attrs={"class":'apexPriceToPay'}).text.strip().split("₹")[1]
         except AttributeError:
             price = ""
         
@@ -147,6 +148,7 @@ class AmazonProductDetailsScraper:
             "fba/mfn": merchant_info[1],
             "shipping_fee": self.get_shipping_fee(self.rightCol)
         }
+        logging.warning(ProductDetails)
 
         return ProductDetails
 
