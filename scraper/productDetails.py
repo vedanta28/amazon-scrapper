@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import json
 import requests
+import logging
 
 class AmazonProductDetailsScraper:
 
@@ -18,7 +19,17 @@ class AmazonProductDetailsScraper:
         try:
             price = soup_object.find("span", attrs={"class":'priceToPay'}).find("span", attrs={"class": "a-offscreen"}).text.strip().replace(',', '')[1:]
         except AttributeError:
-            price = ""
+            try:
+                # price = soup_object.find("span", attrs={"class":'a-price a-text-price a-size-medium apexPriceToPay'}).span.text.strip()
+                price = ""
+                prices = soup_object.find_all("span", attrs={"class":'a-price a-text-price a-size-medium apexPriceToPay'})
+                for i, p in enumerate(prices):
+                    if i != 0:
+                        price += " - "
+                    price += p.span.text.strip()
+                logging.warning(price)
+            except AttributeError:
+                price = ""
         return price
 
     def get_mrp(self, soup_object: BeautifulSoup) -> str:
