@@ -125,9 +125,9 @@ class AmazonProductDetailsScraper:
         try:
             isLD = False
             price = self.get_price(self.centralCol)
-            if( self.rightCol.text.count("Lightning") ):
+            if( self.rightCol.text.count("Lightning") and price == ""):
                 isLD = True
-                # price = self.centralCol.find("span", attrs={"class":'apexPriceToPay'}).text.strip().split("₹")[1]
+                price = self.centralCol.find("span", attrs={"class":'apexPriceToPay'}).text.strip().split("₹")[1]
         except AttributeError:
             price = ""
         
