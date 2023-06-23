@@ -37,9 +37,8 @@ headers = {
     "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
 }
 
-def getdata(url):
-    response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.text,  "lxml")
+def getdata(soup):
+    
 
     fields = []
     values = []
@@ -102,6 +101,10 @@ def getdata(url):
         fields[i] = convert_to_lowercase_with_underscore(remove_unrendered_unicode(fields[i]))
         values[i] = remove_unrendered_unicode(values[i])
         res[fields[i]] = values[i]
+    
+    if "best_sellers_rank" in res:
+        res["ranking"] = res["best_sellers_rank"]
+        del res["best_sellers_rank"]
 
     return res
 

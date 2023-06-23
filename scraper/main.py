@@ -15,6 +15,15 @@ def assign_fields(dictionary1, dictionary2):
             result[key] = dictionary2[key]
     return result
 
+def get_details(dictionary1,dictionary2):
+    result= dictionary1.copy()
+    details_list=[]
+    for key in dictionary2:
+        if key not in dictionary1:
+            details_list.append(key+" : "+dictionary2[key])
+    result["details"]=" | ".join(details_list)
+    return result
+        
 filename = "data.csv"
 
 master_dict = {
@@ -32,7 +41,8 @@ master_dict = {
     "status": "",
     "sold_by": "",
     "fba/mfn": "",
-    "shipping_fee": ""
+    "shipping_fee": "",
+    "details": ""
 }
 
 headers = {
@@ -48,7 +58,7 @@ headers = {
     "sec-fetch-dest": "document",
     "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
 }
-
+url_list=["https://www.amazon.in/MASERATI-Stile-42-Mens-Watch/dp/B08X15J8MT?ref_=Oct_DLandingS_D_3994573e_10"]
 #periodically run the scraper for all urls in the list
 def process_urls():
     while True:
@@ -59,15 +69,15 @@ def process_urls():
             for url in url_list:
                 # Perform the desired operations on the URL
                 print("Processing URL:", url)
-                data = getdata(url)
-                print(data)
-
                 response = requests.get(url, headers=headers)
                 soup = BeautifulSoup(response.text,  "lxml")
+                data = getdata(soup)
+                print(data)
                 data0 = AmazonProductDetailsScraper(soup).scrape_product_details()
                 dict0 = assign_fields(master_dict, data0)
                 
                 dict1 = assign_fields(dict0, data)
+                dict1 = get_details(dict1,data)
                 asin = dict1.get("asin", "")
                 AmazonReviewScraper().scrape_reviews(asin, 100)
                 print(dict1)
