@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+import json
+import requests
 
 class AmazonProductDetailsScraper:
 
@@ -28,10 +30,10 @@ class AmazonProductDetailsScraper:
 
     def get_rating(self, soup_object: BeautifulSoup) -> str:
         try:
-            ratings = soup_object.find("span", attrs={"id":'acrPopover'}).text.strip().split(" ")[0]
+            rating = soup_object.find("span", attrs={"id":'acrPopover'}).text.strip().split(" ")[0]
         except AttributeError:
-            ratings = ""
-        return ratings
+            rating = ""
+        return rating
 
     def get_ratings_count(self, soup_object: BeautifulSoup) -> str:
         try:
@@ -128,7 +130,7 @@ class AmazonProductDetailsScraper:
             "is_deal": deal_type[1],
             "is_ld" : isLD,
             "ratings_count": self.get_ratings_count(self.centralCol),
-            "rating": self.get_rating(self.get_rating),
+            "rating": self.get_rating(self.centralCol),
             "status": self.get_status(self.rightCol),
             "sold_by": merchant_info[0],
             "fba/mfn": merchant_info[1],
@@ -136,3 +138,25 @@ class AmazonProductDetailsScraper:
         }
 
         return ProductDetails
+
+if __name__ == '__main__':
+    headers = {
+        "authority": "www.amazon.com",
+        "pragma": "no-cache",
+        "cache-control": "no-cache",
+        "dnt": "1",
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36",
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        "sec-fetch-site": "none",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-dest": "document",
+        "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+    }
+    url = input('Enter URL: ')
+    # url="https://www.amazon.in/HP-Multi-Device-Bluetooth-Resistant-Auto-Detection/dp/B0BR3YKQQ1/ref=sr_1_2_sspa?keywords=keyboards&qid=1687188204&sr=8-2-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1"
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.text,  "lxml")
+    data0 = AmazonProductDetailsScraper(soup).scrape_product_details()
+    with open('data.json', 'w', encoding='utf-8') as f:
+        json.dump(data0, f, ensure_ascii=False, indent=4)
