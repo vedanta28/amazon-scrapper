@@ -11,7 +11,7 @@ import random
 
 url_list = []
 
-input_file = "error.txt"
+input_file = "input.txt"
 filename = f"scrapped_data/{datetime.now().strftime('%Y-%m-%d-%m')}_product_details.csv"
 
 
