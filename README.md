@@ -11,3 +11,7 @@ A simple Amazon Scrapper for scrapping Data from Amazon
 5. Put the required links to be scraped in input.txt
 6. Run main.py. There is an option for scrapping reviews, which can be used by just commenting out the code inside the process_url function. 
    
+# Contributors:
+1. Vedanta Mohapatra (vedanta28)
+2. Koustav Sen (senkoustav9)
+3. Arnav Behera (ARNAV69420)
